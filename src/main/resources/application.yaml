@@ -1,0 +1,111 @@
+deployed:
+  NODE_NAME: ${NODE_NAME:}
+  NODE_IP: ${NODE_IP:}
+  NAMESPACE: ${NAMESPACE:}
+  POD_NAME: ${POD_NAME:}
+  POD_IP: ${POD_IP:}
+  JAVA_OPTS: ${JAVA_OPTS:}
+
+server:
+  port: 8080
+  # servlet:
+  #   context-path: /petclinic
+
+# database init, supports mysql or postgres too
+database: h2
+
+spring:
+  profiles:
+    active: loc
+
+  sql:
+    init:
+      schema-locations: classpath*:db/${database}/schema.sql
+      data-locations: classpath*:db/${database}/data.sql
+
+  # Web
+  thymeleaf:
+    mode: HTML
+
+  # JPA
+  jpa:
+    open-in-view: 'true'
+    hibernate:
+      ddl-auto: none
+
+  # Internationalization
+  messages:
+    basename: messages/messages
+
+  # Maximum time static resources should be cached
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 12h
+
+# Actuator
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+# Logging
+logging:
+  level:
+    org:
+      springframework: INFO
+        # web: DEBUG
+        # context:
+        #   annotation: TRACE
+# ---
+# database: mysql
+# spring:
+#   config:
+#     activate:
+#       on-profile: mysql
+#   # mysql
+#   datasource:
+#     url: ${MYSQL_URL:jdbc:mysql://localhost/petclinic}
+#     username: ${MYSQL_USER:petclinic}
+#     password: ${MYSQL_PASS:petclinic}
+#   # SQL is written to be idempotent so this is safe
+#   sql:
+#     init:
+#       mode: always
+# ---
+# database: postgres
+# spring:
+#   config:
+#     activate:
+#       on-profile: postgres
+#   # postgres
+#   datasource:
+#     url: ${POSTGRES_URL:jdbc:postgresql://localhost/petclinic}
+#     username: ${POSTGRES_USER:petclinic}
+#     password: ${POSTGRES_PASS:petclinic}
+#   # SQL is written to be idempotent so this is safe
+#   sql:
+#     init:
+#       mode: always
+---
+spring:
+  config:
+    activate:
+      on-profile: loc
+---
+spring:
+  config:
+    activate:
+      on-profile: dev
+---
+spring:
+  config:
+    activate:
+      on-profile: stg
+---
+spring:
+  config:
+    activate:
+      on-profile: prd

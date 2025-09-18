@@ -1,0 +1,91 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ${V_K8S_APP_NAME}
+  name: sample-${V_K8S_APP_NAME}-svc
+spec:
+  ports:
+    - name: http
+      port: 8080
+      protocol: TCP
+      targetPort: 8080
+  selector:
+    app: ${V_K8S_APP_NAME}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ${V_K8S_APP_NAME}
+  name: sample-${V_K8S_APP_NAME}-deploy
+spec:
+  replicas: 0
+  selector:
+    matchLabels:
+      app: ${V_K8S_APP_NAME}
+  template:
+    metadata:
+      labels:
+        app: ${V_K8S_APP_NAME}
+    spec:
+      containers:
+        - env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: JAVA_OPTS
+              value: -Dfile.encoding=UTF-8 -Dspring.profiles.active=${V_BUILD_ENV}
+          image: ${V_K8S_APP_IMAGE}:${V_BUILD_TAG}
+          imagePullPolicy: Always
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - sh
+                  - -c
+                  - sleep 10
+          livenessProbe:
+            httpGet:
+              path: /actuator/health/liveness
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 5
+          name: sample-petclinic-con
+          ports:
+            - containerPort: 8080
+              name: http
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: 8080
+            initialDelaySeconds: 15
+          resources:
+            limits:
+              cpu: 500m
+              memory: 2000Mi
+      imagePullSecrets:
+        # https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/#inspecting-the-secret-regcred
+        # kubectl -n <your-namespace> create secret docker-registry regcred --docker-server=172.18.0.27 --docker-username=robot.regcred --docker-password=<robot.regcred-secret>
+        - name: regcred
+      securityContext:
+        fsGroup: 1001
+        runAsUser: 1001

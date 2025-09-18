@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'home')}">
+
+  <body>
+
+    <h1 th:text="#{welcome}">Welcome</h1>
+    <br/>
+    <div style="font-size: 16px;">
+      <strong>- 2024-01-26 profile :</strong> <span style="background-color: white;" th:text="${profile}"></span><br/>
+      <strong>- NODE_NAME :</strong> <span style="background-color: white;" th:text="${nodeName}"></span><br/>
+      <strong>- NODE_IP :</strong> <span style="background-color: white;" th:text="${nodeIp}"></span><br/>
+      <strong>- NAMESPACE :</strong> <span style="background-color: white;" th:text="${namespace}"></span><br/>
+      <strong>- POD_NAME :</strong> <span style="background-color: yellow;" th:text="${podName}"></span><br/>
+      <strong>- POD_IP :</strong> <span style="background-color: yellow;" th:text="${podIp}"></span><br/>
+      <strong>- JAVA_OPTS :</strong> <span style="background-color: white;" th:text="${javaOpts}"></span><br/>
+    </div>
+    <br/>
+
+    <div class="row">
+        <div class="col-md-12">
+          <img class="img-responsive" src="../static/resources/images/pets.png" th:src="@{/resources/images/pets.png}"/>
+        </div>
+    </div>
+
+  </body>
+
+</html>
